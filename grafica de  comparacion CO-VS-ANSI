@@ -1,0 +1,40 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import binom
+
+# Parámetros de los planes
+planes = [
+    {"n": 315, "c": 3, "label": "Plan Riguroso: n=315, c=3", "color": "red", "style": "-"},
+    {"n": 200, "c": 3, "label": "Plan ANSI Z1.4 (Riguroso Oficial): n=200, c=3", "color": "blue", "style": "--"}
+]
+
+# Rango de defectos (0% a 5%)
+p = np.linspace(0, 0.05, 100)
+
+plt.figure(figsize=(10, 6))
+
+for plan in planes:
+    # Probabilidad de aceptación
+    Pa = binom.cdf(plan["c"], plan["n"], p)
+    plt.plot(p * 100, Pa, label=plan["label"], color=plan["color"], linestyle=plan["style"], linewidth=2.5)
+
+# Puntos de interés (AQL 1.0%)
+plt.axvline(x=1.0, color='gray', linestyle=':', label='AQL (1.0%)')
+
+# Anotaciones de riesgo del productor
+pa_custom = binom.cdf(3, 315, 0.01)
+pa_ansi = binom.cdf(3, 200, 0.01)
+
+plt.plot(1.0, pa_custom, 'ro')
+plt.plot(1.0, pa_ansi, 'bo')
+
+plt.text(1.1, pa_custom, f'Pa={pa_custom:.1%} (Riesgo Alto)', color='red', fontsize=9)
+plt.text(1.1, pa_ansi, f'Pa={pa_ansi:.1%} (Riesgo Std)', color='blue', fontsize=9)
+
+plt.title('Comparativa de Rigurosidad: Efecto del Tamaño de Muestra (n) con c constante', fontsize=13)
+plt.xlabel('Porcentaje Real de Defectuosos (%)', fontsize=12)
+plt.ylabel('Probabilidad de Aceptación (Pa)', fontsize=12)
+plt.legend()
+plt.grid(True, which='both', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
