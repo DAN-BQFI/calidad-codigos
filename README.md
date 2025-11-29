@@ -1,2 +1,89 @@
  estos son los codigos que usamos para las graficas 
- 
+
+
+ codigo para grafica de CO ejercicio 1 
+
+
+ import numpy as np
+import matplotlib.pyplot as plt
+from math import comb   # para la función combinatoria
+
+# --------------------------------------
+# Parámetros generales
+# --------------------------------------
+N = 10_000  # Tamaño de lote (no se usa directamente en el modelo binomial)
+
+# Definimos 3 planes de muestreo (n, c)
+planes = {
+    "Plan 1: n=50, c=0":  (50, 0),
+    "Plan 2: n=125, c=1": (125, 1),
+    "Plan 3: n=200, c=3": (200, 3),
+}
+
+# Colores de las curvas
+colores = {
+    "Plan 1: n=50, c=0":  "yellow",
+    "Plan 2: n=125, c=1": "red",
+    "Plan 3: n=200, c=3": "pink",   # o "hotpink", "deeppink", etc.
+}
+
+# Rango de fracciones defectuosas p (0% a 12%)
+p_values = np.linspace(0, 0.12, 49)  # 0, 0.0025, ..., 0.12 aprox.
+
+
+# --------------------------------------
+# Función: probabilidad de aceptación (modelo binomial)
+# --------------------------------------
+def prob_aceptacion_binomial(n, c, p):
+    """
+    Calcula la probabilidad de aceptar el lote (Pa)
+    para un plan (n, c) dado y una fracción defectuosa p,
+    usando la distribución binomial.
+    """
+    Pa = 0.0
+    for i in range(c + 1):
+        Pa += comb(n, i) * (p ** i) * ((1 - p) ** (n - i))
+    return Pa
+
+
+# --------------------------------------
+# Cálculo de las OC para cada plan
+# --------------------------------------
+oc_results = {}
+for etiqueta, (n, c) in planes.items():
+    oc_results[etiqueta] = [prob_aceptacion_binomial(n, c, p) for p in p_values]
+
+
+# --------------------------------------
+# Gráfica de las curvas OC (eje X hasta 12%)
+# --------------------------------------
+plt.figure(figsize=(8, 5))
+
+for etiqueta in planes.keys():
+    plt.plot(
+        p_values * 100,
+        oc_results[etiqueta],
+        label=etiqueta,
+        color=colores[etiqueta]
+    )
+
+plt.xlabel("% de unidades defectuosas en el lote (p)")
+plt.ylabel("Probabilidad de aceptación del lote $P_a$")
+plt.title("Curvas CO,binomial )")
+plt.ylim(0, 1.05)
+plt.xlim(0, 12)  # aquí recortas el eje X a 12 %
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+
+plt.show()
+
+# Para guardar:
+# plt.savefig("oc_curves_planes_muestreo_x12.png", dpi=300)
+
+
+
+
+
+
+
